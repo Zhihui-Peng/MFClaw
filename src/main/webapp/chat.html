@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiClaw Demo - 对话</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+        .status-dot.connecting { background: #fbbf24; animation: pulse 1s infinite; }
+        .status-dot.error { background: #ef4444; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .exit-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .exit-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .message {
+            max-width: 70%;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .message.worker {
+            background: white;
+            color: #333;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .message .sender {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
+        .message .text { font-size: 14px; }
+        .message .time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.5;
+            text-align: right;
+        }
+        .system-message {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            margin: 16px 0;
+        }
+
+        .input-area {
+            background: white;
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .input-area input:focus { outline: none; border-color: #667eea; }
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .send-btn:hover { transform: translateY(-1px); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>HiClaw Demo</h1>
+            <div class="status">
+                <div class="status-dot connecting" id="statusDot"></div>
+                <span id="statusText">连接中...</span>
+            </div>
+        </div>
+        <button class="exit-btn" onclick="exitChat()">退出对话</button>
+    </div>
+
+    <div class="messages" id="messages">
+        <div class="system-message" id="systemInfo">正在获取会话信息...</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="输入消息..." 
+               autocomplete="off" onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+    </div>
+
+    <script>
+        var userId = '';
+        var matrixUserId = '';
+        var roomId = '';
+        var workerName = '';
+        var pollTimer = null;
+
+        // 获取会话信息
+        fetch('/chat/info')
+            .then(function(r) {
+                if (!r.ok) { window.location.href = '/login.html'; return null; }
+                return r.json();
+            })
+            .then(function(data) {
+                if (!data) return;
+                userId = data.userId;
+                matrixUserId = data.matrixUserId;
+                roomId = data.roomId;
+                workerName = data.workerName;
+                document.getElementById('systemInfo').textContent = 
+                    '已连接到 Worker: ' + workerName + ' | Room: ' + roomId.substring(0, 20) + '...';
+                startPolling();
+            })
+            .catch(function() { window.location.href = '/login.html'; });
+
+        // 轮询消息
+        function startPolling() {
+            setStatus('connecting', '连接中...');
+            pollMessages();
+        }
+
+        function pollMessages() {
+            fetch('/chat/messages')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.error) {
+                        setStatus('error', '消息错误');
+                    } else if (data.messages) {
+                        for (var i = 0; i < data.messages.length; i++) {
+                            var msg = data.messages[i];
+                            // 用完整的 Matrix User ID 过滤用户自己的消息
+                            if (msg.sender === matrixUserId) continue;
+                            // 显示时用简化的发送者名称
+                            var senderName = msg.sender.split(':')[0].replace('@', '');
+                            addMessage(senderName, msg.content, msg.timestamp, 'worker');
+                        }
+                        setStatus('connected', '已连接');
+                    }
+                })
+                .catch(function() { setStatus('error', '轮询失败'); })
+                .finally(function() {
+                    pollTimer = setTimeout(pollMessages, 3000);
+                });
+        }
+
+        // 发送消息（自动加 @worker mention）
+        function sendMessage() {
+            var input = document.getElementById('messageInput');
+            var text = input.value.trim();
+            if (!text) return;
+
+            // 自动在消息前加 @worker mention
+            var mention = '@' + workerName + ' ';
+            if (text.indexOf(mention) !== 0) {
+                text = mention + text;
+            }
+
+            var btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            input.value = '';
+
+            addMessage('我', text, Date.now(), 'user');
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'message=' + encodeURIComponent(text)
+            })
+            .then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function(data) {
+                // 发送成功，消息已显示
+            })
+            .catch(function(err) {
+                alert('发送失败: ' + err.message);
+                input.value = text;
+            })
+            .finally(function() {
+                btn.disabled = false;
+                input.focus();
+            });
+        }
+
+        function addMessage(sender, content, timestamp, type) {
+            var container = document.getElementById('messages');
+            var div = document.createElement('div');
+            div.className = 'message ' + (type || 'worker');
+
+            var time = new Date(typeof timestamp === 'number' ? timestamp : parseInt(timestamp));
+            var timeStr = time.getHours().toString().padStart(2, '0') + ':' + 
+                         time.getMinutes().toString().padStart(2, '0');
+
+            var escaped = document.createElement('div');
+            escaped.textContent = content;
+            
+            div.innerHTML = '<div class="sender">' + escapeHtml(sender) + '</div>' +
+                '<div class="text">' + escaped.innerHTML + '</div>' +
+                '<div class="time">' + timeStr + '</div>';
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function exitChat() {
+            if (confirm('确定退出？Worker 将进入休眠状态。')) {
+                window.location.href = '/chat/exit';
+            }
+        }
+
+        function setStatus(state, text) {
+            var dot = document.getElementById('statusDot');
+            dot.className = 'status-dot ' + state;
+            document.getElementById('statusText').textContent = text;
+        }
+
+        function escapeHtml(text) {
+            var d = document.createElement('div');
+            d.textContent = text;
+            return d.innerHTML;
+        }
+
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>
