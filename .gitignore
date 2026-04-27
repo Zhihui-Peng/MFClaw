@@ -1,0 +1,28 @@
+# Maven
+target/
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 运行时
+*.log
+*.mv.db
+*.trace.db
+
+# 临时测试文件
+test_*.py
+sync_test.json
+
+# H2 数据库
+*.mv.db
+*.lock.db

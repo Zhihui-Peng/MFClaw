@@ -1,0 +1,318 @@
+{
+  "agents": {
+    "defaults": {
+      "maxConcurrent": 4,
+      "model": {
+        "primary": "hiclaw-gateway/step-3.5-flash"
+      },
+      "models": {
+        "hiclaw-gateway/MiniMax-M2.5": {
+          "alias": "MiniMax-M2.5"
+        },
+        "hiclaw-gateway/MiniMax-M2.7": {
+          "alias": "MiniMax-M2.7"
+        },
+        "hiclaw-gateway/MiniMax-M2.7-highspeed": {
+          "alias": "MiniMax-M2.7-highspeed"
+        },
+        "hiclaw-gateway/claude-haiku-4-5": {
+          "alias": "claude-haiku-4-5"
+        },
+        "hiclaw-gateway/claude-opus-4-6": {
+          "alias": "claude-opus-4-6"
+        },
+        "hiclaw-gateway/claude-sonnet-4-6": {
+          "alias": "claude-sonnet-4-6"
+        },
+        "hiclaw-gateway/deepseek-chat": {
+          "alias": "deepseek-chat"
+        },
+        "hiclaw-gateway/deepseek-reasoner": {
+          "alias": "deepseek-reasoner"
+        },
+        "hiclaw-gateway/glm-5": {
+          "alias": "glm-5"
+        },
+        "hiclaw-gateway/gpt-5-mini": {
+          "alias": "gpt-5-mini"
+        },
+        "hiclaw-gateway/gpt-5-nano": {
+          "alias": "gpt-5-nano"
+        },
+        "hiclaw-gateway/gpt-5.3-codex": {
+          "alias": "gpt-5.3-codex"
+        },
+        "hiclaw-gateway/gpt-5.4": {
+          "alias": "gpt-5.4"
+        },
+        "hiclaw-gateway/kimi-k2.5": {
+          "alias": "kimi-k2.5"
+        },
+        "hiclaw-gateway/qwen3.5-plus": {
+          "alias": "qwen3.5-plus"
+        },
+        "hiclaw-gateway/step-3.5-flash": {
+          "alias": "step-3.5-flash"
+        }
+      },
+      "subagents": {
+        "maxConcurrent": 8
+      },
+      "timeoutSeconds": 1800,
+      "workspace": "~"
+    }
+  },
+  "channels": {
+    "matrix": {
+      "accessToken": "zVyEABT5ASXbHb2bFtmRVj3NnM0VgOph",
+      "autoJoin": "always",
+      "dm": {
+        "allowFrom": [
+          "@manager:matrix-local.hiclaw.io:18080",
+          "@admin:matrix-local.hiclaw.io:18080"
+        ],
+        "policy": "allowlist"
+      },
+      "enabled": true,
+      "encryption": false,
+      "groupAllowFrom": [
+        "@manager:matrix-local.hiclaw.io:18080",
+        "@admin:matrix-local.hiclaw.io:18080"
+      ],
+      "groupPolicy": "open",
+      "groups": {
+        "*": {
+          "allow": true,
+          "autoReply": true
+        }
+      },
+      "homeserver": "http://hiclaw-controller:6167",
+      "network": {
+        "dangerouslyAllowPrivateNetwork": true
+      },
+      "userId": "@worker-test-user:matrix-local.hiclaw.io:18080"
+    }
+  },
+  "gateway": {
+    "auth": {
+      "token": "cef9e204dd4c6920a66546c1c3f0a0518decdd155bf02dae7489859d78cfe05f"
+    },
+    "bind": "lan",
+    "controlUi": {
+      "allowInsecureAuth": true,
+      "allowedOrigins": [
+        "*"
+      ],
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "mode": "local",
+    "port": 18799,
+    "remote": {
+      "token": "cef9e204dd4c6920a66546c1c3f0a0518decdd155bf02dae7489859d78cfe05f"
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "hiclaw-gateway": {
+        "api": "openai-completions",
+        "apiKey": "cef9e204dd4c6920a66546c1c3f0a0518decdd155bf02dae7489859d78cfe05f",
+        "baseUrl": "http://aigw-local.hiclaw.io:8080/v1",
+        "models": [
+          {
+            "id": "gpt-5.4",
+            "name": "gpt-5.4",
+            "contextWindow": 150000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "gpt-5.3-codex",
+            "name": "gpt-5.3-codex",
+            "contextWindow": 400000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "gpt-5-mini",
+            "name": "gpt-5-mini",
+            "contextWindow": 400000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "gpt-5-nano",
+            "name": "gpt-5-nano",
+            "contextWindow": 400000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "claude-opus-4-6",
+            "name": "claude-opus-4-6",
+            "contextWindow": 1000000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "claude-sonnet-4-6",
+            "name": "claude-sonnet-4-6",
+            "contextWindow": 1000000,
+            "maxTokens": 64000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "claude-haiku-4-5",
+            "name": "claude-haiku-4-5",
+            "contextWindow": 200000,
+            "maxTokens": 64000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "qwen3.5-plus",
+            "name": "qwen3.5-plus",
+            "contextWindow": 200000,
+            "maxTokens": 64000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "deepseek-chat",
+            "name": "deepseek-chat",
+            "contextWindow": 256000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "deepseek-reasoner",
+            "name": "deepseek-reasoner",
+            "contextWindow": 256000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "kimi-k2.5",
+            "name": "kimi-k2.5",
+            "contextWindow": 256000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "glm-5",
+            "name": "glm-5",
+            "contextWindow": 200000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "MiniMax-M2.7",
+            "name": "MiniMax-M2.7",
+            "contextWindow": 200000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "MiniMax-M2.7-highspeed",
+            "name": "MiniMax-M2.7-highspeed",
+            "contextWindow": 200000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "MiniMax-M2.5",
+            "name": "MiniMax-M2.5",
+            "contextWindow": 200000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          },
+          {
+            "id": "step-3.5-flash",
+            "name": "step-3.5-flash",
+            "contextWindow": 150000,
+            "maxTokens": 128000,
+            "reasoning": true,
+            "input": [
+              "text"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "matrix": {
+        "enabled": true
+      }
+    },
+    "load": {
+      "paths": [
+        "/opt/openclaw/extensions/matrix"
+      ]
+    }
+  },
+  "session": {
+    "resetByType": {
+      "dm": {
+        "atHour": 4,
+        "mode": "daily"
+      },
+      "group": {
+        "atHour": 4,
+        "mode": "daily"
+      }
+    }
+  }
+}

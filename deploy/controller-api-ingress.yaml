@@ -1,0 +1,20 @@
+# HiClaw Controller API Ingress Route
+# 将 Controller API 暴露到 Gateway 端口 (18080)
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hiclaw-controller-api
+  namespace: default
+spec:
+  ingressClassName: higress
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: hiclaw-controller
+                port:
+                  number: 8090
